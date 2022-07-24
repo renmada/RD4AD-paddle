@@ -33,7 +33,7 @@
 
 **参考repo:** [RD4AD](https://github.com/hq-deng/RD4AD)
 
-在此非常感谢 RD4AD repo的Yikai-Wang等人贡献的[RD4AD](https://github.com/hq-deng/RD4AD) ，提高了本repo复现论文的效率。
+在此非常感谢 RD4AD repo的Hanqiu Deng等人贡献的[RD4AD](https://github.com/hq-deng/RD4AD) ，提高了本repo复现论文的效率。
 
 
 
@@ -114,8 +114,8 @@ Pixel Auroc:0.979, Sample Auroc0.989, Pixel Aupro0.944
 
 ### 4.3 模型预测
 单张图片检测，并与ground truth对比  
-<img src="./doc/org.png" width="10%" height="30%" />
-<img src="./doc/ad.png" width="10%" height="30%" />
+<img src="./doc/org.png" width="30%" height="30%" />
+<img src="./doc/ad.png" width="30%" height="30%" />
 ```bash
 python main.py --mode infer --data_dir sample_data --cls bottle
 ```
@@ -136,8 +136,8 @@ python infer.py --data_dir sample_data --cls bottle
 bash test_tipc/test_train_inference_python.sh test_tipc/configs/train_infer_python.txt  lite_train_lite_infer
 ```
 关键步骤展示  
-<img src="./doc/tipc.png" width="40%" height="50%" />  
-<img src="./doc/tipc2.png" width="40%" height="50%" />
+<img src="./doc/tipc.png" width="70%" height="70%" />  
+<img src="./doc/tipc2.png" width="70%" height="70%" />
 ## 7. LICENSE
 
 本项目的发布受[MIT License](./LICENSE)许可认证。
