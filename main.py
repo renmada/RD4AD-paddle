@@ -57,22 +57,22 @@ def loss_concat(a, b):
 
 def train(_class_, print_steps=5):
     epochs = args.epochs
-    learning_rate = 0.005
-    batch_size = 16
-    image_size = 256
+    learning_rate = args.lr
+    batch_size = args.batch_size
+    image_size = args.image_size
 
     data_transform, gt_transform = get_data_transforms(image_size, image_size)
     train_path = os.path.join(args.data_dir, _class_ + '/train')
     test_path = os.path.join(args.data_dir, _class_)
     ckp_path = os.path.join(args.output_dir, 'wres50_' + _class_ + '.pdparams')
-    train_data = ImageFolder(root=train_path, transform=data_transform)
+    train_data = ImageFolder(root=train_path, transform=data_transform)  # 训练集不需要label,直接用ImageFolder加载
     test_data = MVTecDataset(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test")
     train_dataloader = paddle.io.DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=8)
     test_dataloader = paddle.io.DataLoader(test_data, batch_size=1, shuffle=False)
 
     encoder = WideResnet50()
     bn = BN_layer(AttnBottleneck, 3)
-    encoder.eval()
+    encoder.eval()  # 预训练的WideResnet50，训练时不需要梯度更新
     decoder = de_wide_resnet50_2(pretrained=False)
 
     optimizer = paddle.optimizer.Adam(parameters=list(decoder.parameters()) + list(bn.parameters()),
@@ -131,7 +131,7 @@ def eval_model(_class_):
     data_transform, gt_transform = get_data_transforms(image_size, image_size)
     test_path = os.path.join(args.data_dir, _class_)
     test_data = MVTecDataset(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test")
-    test_dataloader = paddle.io.DataLoader(test_data, batch_size=1, shuffle=False)
+    test_dataloader = paddle.io.DataLoader(test_data, batch_size=1, shuffle=False)  # eval时batch size为1
 
     encoder = WideResnet50()
     bn = BN_layer(AttnBottleneck, 3)
@@ -140,7 +140,7 @@ def eval_model(_class_):
     bn.eval()
     decoder.eval()
 
-    ckpt_path = './checkpoints/' + 'wres50_' + _class_ + '.pdparams'
+    ckpt_path = os.path.join('./checkpoints', 'wres50_{}.pdparams'.format(_class_))
     states = paddle.load(ckpt_path)
     bn.set_state_dict(states['bn'])
     decoder.set_state_dict(states['decoder'])
@@ -163,7 +163,7 @@ def infer(_class_):
     bn.eval()
     decoder.eval()
 
-    ckpt_path = './checkpoints/' + 'wres50_' + _class_ + '.pdparams'
+    ckpt_path = os.path.join('./checkpoints', 'wres50_{}.pdparams'.format(_class_))
     states = paddle.load(ckpt_path)
     bn.set_state_dict(states['bn'])
     decoder.set_state_dict(states['decoder'])
@@ -190,7 +190,12 @@ if __name__ == '__main__':
     parser.add_argument('--cls', default='bottle', type=str)
     parser.add_argument('--output_dir', default='checkpoints', type=str)
     parser.add_argument('--epochs', default=100, type=int)
+    parser.add_argument('--lr', default=0.005, type=float)
+    parser.add_argument('--batch_size', default=16, type=int)
+    parser.add_argument('--image_size', default=256, type=int)
     parser.add_argument('--print_steps', default=50, type=int)
+    parser.add_argument('--device', default='gpu', type=str)
+    parser.add_argument('--tgt_class', default='', type=str)
     args = parser.parse_args()
 
     setup_seed(123)
@@ -202,19 +207,25 @@ if __name__ == '__main__':
                 train(i, args.print_steps)
 
     elif args.mode == 'eval':
-        auroc_pxs, auroc_sps, aupro_pxs = [], [], []
-        for i in item_list:
-            auroc_px, auroc_sp, aupro_px = eval_model(i)
-            auroc_pxs.append(auroc_px)
-            auroc_sps.append(auroc_sp)
-            aupro_pxs.append(aupro_px)
+        if args.tgt_class:
+            auroc_px, auroc_sp, aupro_px = eval_model(args.tgt_class)
             print(
-                'Class {}, Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3}'.format(i, auroc_px, auroc_sp,
-                                                                                            aupro_px))
-        auroc_px = np.mean(auroc_pxs)
-        auroc_sp = np.mean(auroc_sps)
-        aupro_px = np.mean(aupro_pxs)
-        print('Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3}'.format(auroc_px, auroc_sp, aupro_px))
+                'Class {}, Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3}'.format(args.tgt_class, auroc_px,
+                                                                                            auroc_sp, aupro_px))
+        else:
+            auroc_pxs, auroc_sps, aupro_pxs = [], [], []
+            for i in item_list:
+                auroc_px, auroc_sp, aupro_px = eval_model(i)
+                auroc_pxs.append(auroc_px)
+                auroc_sps.append(auroc_sp)
+                aupro_pxs.append(aupro_px)
+                print(
+                    'Class {}, Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3}'.format(i, auroc_px, auroc_sp,
+                                                                                                aupro_px))
+            auroc_px = np.mean(auroc_pxs)
+            auroc_sp = np.mean(auroc_sps)
+            aupro_px = np.mean(aupro_pxs)
+            print('Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3}'.format(auroc_px, auroc_sp, aupro_px))
 
     elif args.mode == 'infer':
         infer(args.cls)

@@ -24,6 +24,9 @@ def get_data_transforms(size, isize):
 
 
 class MVTecDataset(paddle.io.Dataset):
+    """
+    test 数据集定义
+    """
     def __init__(self, root, transform, gt_transform, phase):
         if phase == 'train':
             self.img_path = os.path.join(root, 'train')
@@ -67,6 +70,9 @@ class MVTecDataset(paddle.io.Dataset):
         return img_tot_paths, gt_tot_paths, tot_labels, tot_types
 
     def __len__(self):
+        """
+        返回数据集总数
+        """
         return len(self.img_paths)
 
     def __getitem__(self, idx):

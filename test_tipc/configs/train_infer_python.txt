@@ -21,7 +21,7 @@ null:null
 null:null
 ##
 ===========================eval_params===========================
-eval:null
+eval:main.py --mode eval --data_dir sample_data --tgt_class bottle
 null:null
 ##
 ===========================infer_params===========================
