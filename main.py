@@ -187,7 +187,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_dir', default='mvtec', type=str)
     parser.add_argument('--mode', default='train', type=str)
-    parser.add_argument('--cls', default='bottle', type=str)
+    parser.add_argument('--cls', default='', type=str)
     parser.add_argument('--output_dir', default='checkpoints', type=str)
     parser.add_argument('--epochs', default=100, type=int)
     parser.add_argument('--lr', default=0.005, type=float)
@@ -195,7 +195,6 @@ if __name__ == '__main__':
     parser.add_argument('--image_size', default=256, type=int)
     parser.add_argument('--print_steps', default=50, type=int)
     parser.add_argument('--device', default='gpu', type=str)
-    parser.add_argument('--tgt_class', default='', type=str)
     args = parser.parse_args()
 
     setup_seed(123)
@@ -207,7 +206,7 @@ if __name__ == '__main__':
                 train(i, args.print_steps)
 
     elif args.mode == 'eval':
-        if args.tgt_class:
+        if args.cls:
             auroc_px, auroc_sp, aupro_px = eval_model(args.tgt_class)
             print(
                 'Class {}, Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3}'.format(args.tgt_class, auroc_px,
@@ -228,4 +227,5 @@ if __name__ == '__main__':
             print('Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3}'.format(auroc_px, auroc_sp, aupro_px))
 
     elif args.mode == 'infer':
+        assert args.cls
         infer(args.cls)

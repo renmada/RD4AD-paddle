@@ -117,6 +117,7 @@ Pixel Auroc:0.979, Sample Auroc0.989, Pixel Aupro0.944
 <img src="./doc/org.png" width="30%" height="30%" />
 <img src="./doc/ad.png" width="30%" height="30%" />
 ```bash
+# cls参数指定类别，样例数据包含bottle
 python main.py --mode infer --data_dir sample_data --cls bottle
 ```
 ## 5. 模型推理部署
@@ -133,6 +134,7 @@ python infer.py --data_dir sample_data --cls bottle
 ## 6. 自动化测试脚本
 
 ```shell
+# tipc的评估只包含样例数据的bottle类
 bash test_tipc/test_train_inference_python.sh test_tipc/configs/train_infer_python.txt  lite_train_lite_infer
 ```
 关键步骤展示  

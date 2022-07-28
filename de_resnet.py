@@ -231,12 +231,6 @@ class ResNet(nn.Layer):
         return nn.Sequential(*layers)
 
     def _forward_impl(self, x: Tensor) -> Tensor:
-        # See note [paddleScript super()]
-        # x = self.conv1(x)
-        # x = self.bn1(x)
-        # x = self.relu(x)
-        # x = self.maxpool(x)
-
         feature_a = self.layer1(x)  # 512*8*8->256*16*16
         feature_b = self.layer2(feature_a)  # 256*16*16->128*32*32
         feature_c = self.layer3(feature_b)  # 128*32*32->64*64*64
