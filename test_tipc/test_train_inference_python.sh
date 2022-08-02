@@ -340,13 +340,13 @@ else
                 eval $cmd
                 status_check $? "${cmd}" "${status_log}"
 
-                set_eval_pretrain=$(func_set_params "${pretrain_model_key}" "${save_log}/${train_model_name}")
+                set_eval_pretrain=$(func_set_params "${pretrain_model_key}" "${save_log}")
 
                 # run eval
                 if [ ${eval_py} != "null" ]; then
                     eval ${env}
                     set_eval_params1=$(func_set_params "${eval_key1}" "${eval_value1}")
-                    eval_cmd="${python} ${eval_py} ${set_eval_pretrain} ${set_use_gpu} ${set_eval_params1}"
+                    eval_cmd="${python} ${eval_py} ${set_eval_pretrain} ${set_use_gpu} ${set_eval_params1} --output_dir ${save_log}"
                     eval $eval_cmd
                     status_check $? "${eval_cmd}" "${status_log}"
                 fi

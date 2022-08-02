@@ -140,8 +140,8 @@ def eval_model(_class_):
     bn.eval()
     decoder.eval()
 
-    ckpt_path = os.path.join('./checkpoints', 'wres50_{}.pdparams'.format(_class_))
-    states = paddle.load(ckpt_path)
+    ckp_path = os.path.join(args.output_dir, 'wres50_' + _class_ + '.pdparams')
+    states = paddle.load(ckp_path)
     bn.set_state_dict(states['bn'])
     decoder.set_state_dict(states['decoder'])
 
@@ -163,8 +163,8 @@ def infer(_class_):
     bn.eval()
     decoder.eval()
 
-    ckpt_path = os.path.join('./checkpoints', 'wres50_{}.pdparams'.format(_class_))
-    states = paddle.load(ckpt_path)
+    ckp_path = os.path.join(args.output_dir, 'wres50_' + _class_ + '.pdparams')
+    states = paddle.load(ckp_path)
     bn.set_state_dict(states['bn'])
     decoder.set_state_dict(states['decoder'])
 
@@ -209,7 +209,7 @@ if __name__ == '__main__':
         if args.cls:
             auroc_px, auroc_sp, aupro_px = eval_model(args.cls)
             print(
-                'Class {}, Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3}'.format(args.tgt_class, auroc_px,
+                'Class {}, Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3}'.format(args.cls, auroc_px,
                                                                                             auroc_sp, aupro_px))
         else:
             auroc_pxs, auroc_sps, aupro_pxs = [], [], []
