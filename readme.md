@@ -94,9 +94,13 @@ Class wood, Pixel Auroc:0.956, Sample Auroc0.992, Pixel Aupro0.916
 
 
 ### 4.2 模型评估
-评估训练好的模型
+评估训所有类别
 ```bash
 python main.py --mode eval
+```
+评估训单个类别
+```bash
+python main.py --mode eval --cls bottle
 ```
 评估结果
 ```
@@ -123,6 +127,7 @@ python main.py --mode infer --data_dir sample_data --cls bottle
 ## 5. 模型推理部署
 ###  模型导出
 ```bash
+# 导出指定类别的模型，默认为bottle
 python export_model.py
 ```
 ### 静态图推理
