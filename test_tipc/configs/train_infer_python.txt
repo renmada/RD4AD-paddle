@@ -21,7 +21,7 @@ null:null
 null:null
 ##
 ===========================eval_params===========================
-eval:main.py --mode eval --data_dir sample_data --tgt_class bottle
+eval:main.py --mode eval --data_dir sample_data --cls bottle
 null:null
 ##
 ===========================infer_params===========================
@@ -34,7 +34,7 @@ distill_export:null
 --data_dir:./sample_data
 export2:null
 inference_dir:null
-infer_model:./test_tipc/icir/infer_model
+infer_model:./test_tipc/RD4AD/infer_model
 infer_export:null
 infer_quant:False
 inference:infer.py --data_dir sample_data --cls bottle

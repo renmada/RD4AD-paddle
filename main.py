@@ -207,7 +207,7 @@ if __name__ == '__main__':
 
     elif args.mode == 'eval':
         if args.cls:
-            auroc_px, auroc_sp, aupro_px = eval_model(args.tgt_class)
+            auroc_px, auroc_sp, aupro_px = eval_model(args.cls)
             print(
                 'Class {}, Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3}'.format(args.tgt_class, auroc_px,
                                                                                             auroc_sp, aupro_px))
