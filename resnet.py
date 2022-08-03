@@ -337,7 +337,7 @@ class WideResnet50(nn.Layer):
     """Wide ResNet-50-2 model from
        `"Wide Residual Networks" <https://arxiv.org/pdf/1605.07146.pdf>`_.
        Use pretrained model from paddle.vision.models.resnet
-       """
+    """
     def __init__(self):
         super(WideResnet50, self).__init__()
         self.resnet = wide_resnet50_2(pretrained=True)

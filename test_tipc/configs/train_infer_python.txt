@@ -38,10 +38,10 @@ infer_model:./test_tipc/RD4AD/infer_model
 infer_export:null
 infer_quant:False
 inference:infer.py --data_dir sample_data --cls bottle
---device:gpu
+--device:gpu|cpu
 --enable_mkldnn:True|False
 --cpu_threads:1|6
---train-batch:1
+--batch_size:1
 --use_tensorrt:False
 --precision:fp32
 --output_dir:./test_tipc/RD4AD/infer_model

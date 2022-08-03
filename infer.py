@@ -59,6 +59,9 @@ class InferenceEngine(object):
             config.enable_use_gpu(1000, 0)
         else:
             config.disable_gpu()
+            config.set_cpu_math_library_num_threads(args.cpu_threads)
+            if args.enable_mkldnn:
+                config.enable_mkldnn()
 
         # enable memory optim
         config.enable_memory_optim()
@@ -180,5 +183,7 @@ if __name__ == "__main__":
     parser.add_argument('--output_dir', default='checkpoints', type=str)
     parser.add_argument('--device', default='gpu', type=str)
     parser.add_argument('--benchmark', default=True, type=bool)
+    parser.add_argument("--cpu_threads", type=int, default=1)
+    parser.add_argument("--enable_mkldnn", type=str, default="False")
     args = parser.parse_args()
     infer_main(args)

@@ -1,26 +1,18 @@
 import paddle
 from dataset import get_data_transforms
-from paddle.vision.datasets import ImageFolder
 import numpy as np
-from paddle.io import DataLoader
 from resnet import BN_layer, AttnBottleneck, WideResnet50
 from de_resnet import de_resnet18, de_resnet50, de_wide_resnet50_2
 from dataset import MVTecDataset
 from paddle.nn import functional as F
 from sklearn.metrics import roc_auc_score
 import cv2
-import matplotlib.pyplot as plt
 from sklearn.metrics import auc
 from skimage import measure
 import pandas as pd
 from numpy import ndarray
 from statistics import mean
 from scipy.ndimage import gaussian_filter
-from sklearn import manifold
-from matplotlib.ticker import NullFormatter
-from scipy.spatial.distance import pdist
-import matplotlib
-import pickle
 
 
 def cal_anomaly_map(fs_list, ft_list, out_size=224, amap_mode='mul'):
@@ -78,7 +70,7 @@ def evaluation(encoder, bn, decoder, dataloader, _class_=None):
         for img, gt, label, _ in dataloader:
             inputs = encoder(img)
             outputs = decoder(bn(inputs))
-            anomaly_map, _ = cal_anomaly_map(inputs, outputs, img.shape[-1], amap_mode='a')
+            anomaly_map, _ = cal_anomaly_map(inputs, outputs, img.shape[-1], amap_mode='a')  # 加法的方式计算anomaly_map
             anomaly_map = gaussian_filter(anomaly_map, sigma=4)
             gt[gt > 0.5] = 1
             gt[gt <= 0.5] = 0

@@ -4,15 +4,14 @@ from paddle.vision.datasets import ImageFolder
 import numpy as np
 import random
 import os
-from paddle.io import DataLoader
 from resnet import BN_layer, AttnBottleneck, WideResnet50
-from de_resnet import de_resnet18, de_resnet34, de_wide_resnet50_2, de_resnet50
+from de_resnet import de_wide_resnet50_2
 from dataset import MVTecDataset
 import argparse
-from test import evaluation, show_cam_on_image
+from test import evaluation
 from paddle.nn import functional as F
 import time
-from test import cal_anomaly_map, gaussian_filter, min_max_norm, cvt2heatmap, cv2
+from test import cal_anomaly_map, min_max_norm, cvt2heatmap, cv2
 
 
 def count_parameters(model):
@@ -26,20 +25,15 @@ def setup_seed(seed):
 
 
 def loss_fucntion(a, b):
-    # mse_loss = paddle.nn.MSELoss()
     cos_loss = paddle.nn.CosineSimilarity()
     loss = 0
     for item in range(len(a)):
-        # print(a[item].shape)
-        # print(b[item].shape)
-        # loss += 0.1*mse_loss(a[item], b[item])
         loss += paddle.mean(1 - cos_loss(a[item].reshape([a[item].shape[0], -1]),
                                          b[item].reshape([b[item].shape[0], -1])))
     return loss
 
 
 def loss_concat(a, b):
-    mse_loss = paddle.nn.MSELoss()
     cos_loss = paddle.nn.CosineSimilarity()
     loss = 0
     a_map = []
@@ -61,6 +55,7 @@ def train(_class_, print_steps=5):
     batch_size = args.batch_size
     image_size = args.image_size
 
+    # 加载数据
     data_transform, gt_transform = get_data_transforms(image_size, image_size)
     train_path = os.path.join(args.data_dir, _class_ + '/train')
     test_path = os.path.join(args.data_dir, _class_)
@@ -70,6 +65,7 @@ def train(_class_, print_steps=5):
     train_dataloader = paddle.io.DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=8)
     test_dataloader = paddle.io.DataLoader(test_data, batch_size=1, shuffle=False)
 
+    # 定义模型
     encoder = WideResnet50()
     bn = BN_layer(AttnBottleneck, 3)
     encoder.eval()  # 预训练的WideResnet50，训练时不需要梯度更新
@@ -94,8 +90,8 @@ def train(_class_, print_steps=5):
             train_start = time.time()
             global_step += 1
             inputs = encoder(img)
-            outputs = decoder(bn(inputs))  # bn(inputs))
-            loss = loss_fucntion(inputs, outputs)
+            outputs = decoder(bn(inputs))
+            loss = loss_fucntion(inputs, outputs)  # loss: 1 - (encoder输出和decoder输出之间的cosine_similarity)
             train_run_cost += time.time() - train_start
             total_samples += len(img)
             optimizer.clear_grad()
@@ -121,6 +117,7 @@ def train(_class_, print_steps=5):
             score = auroc_px + auroc_sp + aupro_px
             if score > best:
                 best = score
+                print('Saving model to {}'.format(ckp_path))
                 paddle.save({'bn': bn.state_dict(),
                              'decoder': decoder.state_dict()}, ckp_path)
         reader_start = time.time()
@@ -198,20 +195,22 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     setup_seed(123)
-    item_list = ['carpet', 'bottle', 'hazelnut', 'leather', 'cable', 'capsule', 'grid', 'pill',
-                 'transistor', 'metal_nut', 'screw', 'toothbrush', 'zipper', 'tile', 'wood']
+    item_list = ['carpet', 'bottle', 'hazelnut', 'leather', 'cable', 'capsule', 'grid', 'pill', 'transistor',
+                 'metal_nut', 'screw', 'toothbrush', 'zipper', 'tile', 'wood']  # mvtec数据集的所有类别
+
+    # 一次训练所有类别
     if args.mode == 'train':
         for i in item_list:
             if os.path.exists(os.path.join(args.data_dir, i)):
                 train(i, args.print_steps)
 
     elif args.mode == 'eval':
-        if args.cls:
+        if args.cls:  # 评估一个类别
             auroc_px, auroc_sp, aupro_px = eval_model(args.cls)
             print(
                 'Class {}, Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3}'.format(args.cls, auroc_px,
                                                                                             auroc_sp, aupro_px))
-        else:
+        else:  # 评估所有类别
             auroc_pxs, auroc_sps, aupro_pxs = [], [], []
             for i in item_list:
                 auroc_px, auroc_sp, aupro_px = eval_model(i)
@@ -226,6 +225,6 @@ if __name__ == '__main__':
             aupro_px = np.mean(aupro_pxs)
             print('Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3}'.format(auroc_px, auroc_sp, aupro_px))
 
-    elif args.mode == 'infer':
+    elif args.mode == 'infer':  # 推理一个类别
         assert args.cls
         infer(args.cls)

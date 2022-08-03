@@ -13,7 +13,6 @@ def get_data_transforms(size, isize):
         transforms.Resize((size, size)),
         transforms.ToTensor(),
         transforms.CenterCrop(isize),
-        # transforms.CenterCrop(args.input_size),
         transforms.Normalize(mean=mean_train,
                              std=std_train)])
     gt_transforms = transforms.Compose([

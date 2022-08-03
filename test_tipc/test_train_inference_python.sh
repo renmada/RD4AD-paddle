@@ -165,7 +165,7 @@ function func_inference(){
                             set_model_dir=$(func_set_params "${infer_model_key}" "${_model_dir}")
                             set_infer_params0=$(func_set_params "${save_log_key}" "${save_log_value}")
                             set_infer_params1=$(func_set_params "${infer_key1}" "${infer_value1}")
-                            command="${_python} ${_script} ${use_gpu_key}=${use_gpu} ${set_mkldnn} ${set_cpu_threads} ${set_model_dir} ${set_batchsize} ${set_infer_params0} ${set_infer_data} ${set_benchmark} ${set_precision} ${set_infer_params1} > ${_save_log_path} 2>&1 "
+                            command="${_python} ${_script} ${use_gpu_key}=${use_gpu} ${set_mkldnn} ${set_cpu_threads} ${set_model_dir} ${set_infer_params0} ${set_benchmark} ${set_infer_params1} > ${_save_log_path} 2>&1 "
                             eval $command
                             last_status=${PIPESTATUS[0]}
                             eval "cat ${_save_log_path}"
@@ -196,7 +196,9 @@ function func_inference(){
                         set_model_dir=$(func_set_params "${infer_model_key}" "${_model_dir}")
                         set_infer_params0=$(func_set_params "${save_log_key}" "${save_log_value}")
                         set_infer_params1=$(func_set_params "${infer_key1}" "${infer_value1}")
-                        command="${_python} ${_script} ${use_gpu_key}=${use_gpu} ${set_tensorrt} ${set_precision} ${set_model_dir} ${set_batchsize} ${set_infer_data} ${set_benchmark} ${set_infer_params1} ${set_infer_params0} > ${_save_log_path} 2>&1 "
+                        command="${_python} ${_script} ${use_gpu_key}=${use_gpu} ${set_model_dir} ${set_benchmark} ${set_infer_params1} ${set_infer_params0} > ${_save_log_path} 2>&1 "
+
+#                        command="${_python} ${_script} ${use_gpu_key}=${use_gpu} ${set_tensorrt} ${set_precision} ${set_model_dir} ${set_batchsize} ${set_infer_data} ${set_benchmark} ${set_infer_params1} ${set_infer_params0} > ${_save_log_path} 2>&1 "
                         eval $command
                         last_status=${PIPESTATUS[0]}
                         eval "cat ${_save_log_path}"
@@ -369,9 +371,10 @@ else
                         infer_model_dir=${save_infer_path}
                     fi
                     infer_cmd="${python} ${inference_py} --output_dir ${infer_model_dir}"
-                    eval ${infer_cmd}
-                    status_check $? "${infer_cmd}" "${status_log}"
-#                    func_inference "${python}" "${inference_py}" "${infer_model_dir}" "${LOG_PATH}" "${train_infer_img_dir}" "${flag_quant}"
+                    echo "${python}" "${inference_py}" "${infer_model_dir}" "${LOG_PATH}" "${train_infer_img_dir}" "${flag_quant}"
+#                    eval ${infer_cmd}
+#                    status_check $? "${infer_cmd}" "${status_log}"
+                    func_inference "${python}" "${inference_py}" "${infer_model_dir}" "${LOG_PATH}" "${train_infer_img_dir}" "${flag_quant}"
 
                     eval "unset CUDA_VISIBLE_DEVICES"
                 fi

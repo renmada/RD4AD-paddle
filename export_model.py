@@ -20,7 +20,7 @@ import paddle
 import paddle.nn as nn
 from paddle.static import InputSpec
 from resnet import BN_layer, AttnBottleneck, WideResnet50
-from de_resnet import de_resnet18, de_resnet34, de_wide_resnet50_2, de_resnet50
+from de_resnet import de_wide_resnet50_2
 
 
 class ExportModel(nn.Layer):
@@ -49,6 +49,7 @@ def main():
     decoder.set_state_dict(states['decoder'])
     model = ExportModel(encoder, bn, decoder)
 
+    # example model forward
     model = paddle.jit.to_static(
         model,
         input_spec=[InputSpec(shape=[None, 3, 256, 256], dtype="float32", name='x')]
