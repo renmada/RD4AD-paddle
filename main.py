@@ -56,7 +56,7 @@ def train(_class_, print_steps=5):
     image_size = args.image_size
 
     # 加载数据
-    data_transform, gt_transform = get_data_transforms(image_size, image_size)
+    data_transform, gt_transform = get_data_transforms(image_size, image_size)  # resize, corp, normalize
     train_path = os.path.join(args.data_dir, _class_ + '/train')
     test_path = os.path.join(args.data_dir, _class_)
     ckp_path = os.path.join(args.output_dir, 'wres50_' + _class_ + '.pdparams')

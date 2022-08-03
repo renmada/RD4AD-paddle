@@ -49,7 +49,6 @@ def main():
     decoder.set_state_dict(states['decoder'])
     model = ExportModel(encoder, bn, decoder)
 
-    # example model forward
     model = paddle.jit.to_static(
         model,
         input_spec=[InputSpec(shape=[None, 3, 256, 256], dtype="float32", name='x')]
