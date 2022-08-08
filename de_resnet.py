@@ -199,7 +199,7 @@ class ResNet(nn.Layer):
         # so that the residual branch starts with zeros, and each residual block behaves like an identity.
         # This improves the model by 0.2~0.3% according to https://arxiv.org/abs/1706.02677
         if zero_init_residual:
-            for m in self.modules():
+            for m in self.sublayers():
                 if isinstance(m, Bottleneck):
                     zero_init(m.bn3.weight)  # type: ignore[arg-type]
                 elif isinstance(m, BasicBlock):
